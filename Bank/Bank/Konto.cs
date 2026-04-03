@@ -5,8 +5,8 @@ namespace Bank
     public class Konto
     {
         private string klient;
-        private decimal bilans;
-        private bool zablokowane = false;
+        protected decimal bilans;
+        protected bool zablokowane = false;
 
         private Konto() { }
 
@@ -21,19 +21,24 @@ namespace Bank
         public decimal Bilans => bilans;
         public bool Zablokowane => zablokowane;
 
-        public void Wplata(decimal kwota)
+        public virtual void Wplata(decimal kwota)
         {
             if (zablokowane) throw new InvalidOperationException();
             if (kwota <= 0) throw new ArgumentOutOfRangeException(nameof(kwota));
             bilans += kwota;
         }
 
-        public void Wyplata(decimal kwota)
+        public virtual void Wyplata(decimal kwota)
         {
             if (zablokowane) throw new InvalidOperationException();
             if (kwota <= 0) throw new ArgumentOutOfRangeException(nameof(kwota));
             if (kwota > bilans) throw new InvalidOperationException();
             bilans -= kwota;
+        }
+
+        internal void WymusZmianeBilansu(decimal kwota)
+        {
+            bilans += kwota;
         }
 
         public void BlokujKonto() => zablokowane = true;
