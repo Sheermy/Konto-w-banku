@@ -13,33 +13,35 @@ namespace Bank
             this.limit = limit;
         }
 
+        public KontoPlus(Konto inneKonto, decimal limit = 100) : base(inneKonto)
+        {
+            this.limit = limit;
+        }
+
         public decimal Limit
         {
             get => limit;
             set => limit = value;
         }
 
-        public new decimal Bilans => base.Bilans + limit;
+        public override decimal Bilans => bilans + limit;
 
         public override void Wyplata(decimal kwota)
         {
             if (zablokowane) throw new InvalidOperationException();
             if (kwota <= 0) throw new ArgumentOutOfRangeException(nameof(kwota));
 
-            if (kwota <= base.Bilans)
+            if (kwota <= bilans)
             {
                 base.Wyplata(kwota);
             }
-            else if (!czyDebetWykorzystany && kwota <= base.Bilans + limit)
+            else if (!czyDebetWykorzystany && kwota <= bilans + limit)
             {
                 bilans -= kwota;
                 czyDebetWykorzystany = true;
                 BlokujKonto();
             }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+            else throw new InvalidOperationException();
         }
 
         public override void Wplata(decimal kwota)
@@ -49,16 +51,13 @@ namespace Bank
             if (zablokowane && czyDebetWykorzystany)
             {
                 bilans += kwota;
-                if (bilans > 0)
+                if (bilans >= 0)
                 {
                     czyDebetWykorzystany = false;
                     OdblokujKonto();
                 }
             }
-            else
-            {
-                base.Wplata(kwota);
-            }
+            else base.Wplata(kwota);
         }
     }
 }

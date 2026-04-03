@@ -2,7 +2,7 @@
 
 namespace Bank
 {
-    public class Konto
+    public class Konto : IKonto
     {
         private string klient;
         protected decimal bilans;
@@ -17,8 +17,15 @@ namespace Bank
             this.bilans = bilansNaStart;
         }
 
+        public Konto(IKonto inneKonto)
+        {
+            this.klient = inneKonto.Nazwa;
+            this.bilans = inneKonto.Bilans;
+            this.zablokowane = inneKonto.Zablokowane;
+        }
+
         public string Nazwa => klient;
-        public decimal Bilans => bilans;
+        public virtual decimal Bilans => bilans;
         public bool Zablokowane => zablokowane;
 
         public virtual void Wplata(decimal kwota)

@@ -2,7 +2,7 @@
 
 namespace Bank
 {
-    public class KontoLimit
+    public class KontoLimit : IKonto
     {
         private Konto _konto;
         private decimal _limit;
@@ -14,33 +14,30 @@ namespace Bank
             _limit = limit;
         }
 
-        public string Nazwa => _konto.Nazwa;
-        public bool Zablokowane => _konto.Zablokowane;
-        public decimal Limit
+        public KontoLimit(Konto istniejąceKonto, decimal limit = 100)
         {
-            get => _limit;
-            set => _limit = value;
+            _konto = istniejąceKonto;
+            _limit = limit;
         }
 
+        public string Nazwa => _konto.Nazwa;
+        public bool Zablokowane => _konto.Zablokowane;
+        public decimal Limit { get => _limit; set => _limit = value; }
         public decimal Bilans => _konto.Bilans + _limit;
 
         public void Wplata(decimal kwota)
         {
             if (kwota <= 0) throw new ArgumentOutOfRangeException(nameof(kwota));
-
             if (_konto.Zablokowane && _czyDebetWykorzystany)
             {
                 _konto.WymusZmianeBilansu(kwota);
-                if (_konto.Bilans > 0)
+                if (_konto.Bilans >= 0)
                 {
                     _czyDebetWykorzystany = false;
                     _konto.OdblokujKonto();
                 }
             }
-            else
-            {
-                _konto.Wplata(kwota);
-            }
+            else _konto.Wplata(kwota);
         }
 
         public void Wyplata(decimal kwota)
@@ -58,10 +55,7 @@ namespace Bank
                 _czyDebetWykorzystany = true;
                 _konto.BlokujKonto();
             }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+            else throw new InvalidOperationException();
         }
 
         public void BlokujKonto() => _konto.BlokujKonto();
